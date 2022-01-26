@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+  database_server:
+    image: mysql:8.0
+    networks:
+      - smarttbot
+    environment:
+      - MYSQL_DATABASE=cryptocandles
+      - MYSQL_USER=smarttbot-desafio
+      - MYSQL_PASSWORD=Sm@rttb0t
+      - MYSQL_RANDOM_ROOT_PASSWORD=1
+    volumes:
+      - ./table.sql:/docker-entrypoint-initdb.d/table.sql
+    ports:
+      - '39423:3306'
+  app:
+    build:
+      context: .
+    volumes:
+      - ./:/app
+    networks:
+      - smarttbot
+    depends_on:
+      - database_server
+    environment:
+      - SMARTTBOT_TEST_DATABASE_NAME=cryptocandles
+      - SMARTTBOT_TEST_DATABASE_USER=smarttbot-desafio
+      - SMARTTBOT_TEST_DATABASE_PASSWORD=Sm@rttb0t
+      - SMARTTBOT_TEST_DATABASE_HOST=database_server
+      - SMARTTBOT_TEST_DATABASE_PORT=3306
+    entrypoint: ['poetry', 'run' ,'start', '--tickers', 'BTC_ETH', 'USDT_ADA']
+networks:
+  smarttbot:
+
+
+
+#export SMARTTBOT_TEST_DATABASE_NAME=cryptocandles
+#export SMARTTBOT_TEST_DATABASE_USER=smarttbot-desafio
+#export SMARTTBOT_TEST_DATABASE_PASSWORD=Sm@rttb0t
+#export SMARTTBOT_TEST_DATABASE_HOST=localhost
+#export SMARTTBOT_TEST_DATABASE_PORT=39423
